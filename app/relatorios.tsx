@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -10,10 +10,7 @@ import {
 } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { moodApi } from "@/services/api";
-import { Dimensions } from "react-native";
 import { useThemeColor } from "@/hooks/use-theme-color";
-
-const screenWidth = Dimensions.get("window").width;
 
 export default function Reports() {
   const background = useThemeColor({}, "background");
@@ -39,7 +36,6 @@ export default function Reports() {
       if (moodApi.getStatsOverview) {
         const statsRes = await moodApi.getStatsOverview(period);
         statsData = statsRes.data;
-        console.log("📊 Stats recebidos:", JSON.stringify(statsData, null, 2));
       }
 
       setTopTriggers(triggersData);
@@ -62,6 +58,69 @@ export default function Reports() {
     }, [period]),
   );
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "-";
+    const onlyDate = dateString.split("T")[0];
+    const [year, month, day] = onlyDate.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
+  const emotionalStats = useMemo(() => {
+    const distribution = statsOverview?.level_distribution || [];
+    const total = Number(statsOverview?.total_entries || 0);
+
+    const getTotalByLevel = (level: number) => {
+      const found = distribution.find((item: any) => Number(item.level) === level);
+      return Number(found?.total || 0);
+    };
+
+    const veryBad = getTotalByLevel(1);
+    const bad = getTotalByLevel(2);
+    const neutral = getTotalByLevel(3);
+    const good = getTotalByLevel(4);
+    const veryGood = getTotalByLevel(5);
+
+    const negative = veryBad + bad;
+    const positive = good + veryGood;
+
+    const percent = (value: number) => {
+      if (!total) return 0;
+      return Math.round((value / total) * 100);
+    };
+
+    return {
+      veryBad,
+      bad,
+      neutral,
+      good,
+      veryGood,
+      negative,
+      positive,
+      negativePercent: percent(negative),
+      neutralPercent: percent(neutral),
+      positivePercent: percent(positive),
+      average: Number(statsOverview?.average_level || 0),
+    };
+  }, [statsOverview]);
+
+  const mainInsight = useMemo(() => {
+    if (!statsOverview?.total_entries) {
+      return "Ainda não há registros suficientes para gerar uma análise.";
+    }
+
+    if (emotionalStats.positive > emotionalStats.negative) {
+      return "A maior parte dos registros deste período foi positiva.";
+    }
+
+    if (emotionalStats.negative > emotionalStats.positive) {
+      return "Este período teve mais registros negativos, indicando uma fase emocional mais difícil.";
+    }
+
+    return "O período apresentou equilíbrio entre registros positivos e negativos.";
+  }, [statsOverview, emotionalStats]);
+
+  const topTriggerName = topTriggers[0]?.name || null;
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -72,14 +131,10 @@ export default function Reports() {
 
   return (
     <ScrollView
-    style={[
-        styles.container,
-        isLight && { backgroundColor: "#122560" }
-    ]}
->
+      style={[styles.container, isLight && { backgroundColor: "#122560" }]}
+    >
       <Text style={styles.title}>📊 Relatórios</Text>
 
-      {/* Seletor de período */}
       <View style={styles.periodRow}>
         {[7, 30, 90].map((p) => (
           <TouchableOpacity
@@ -92,9 +147,9 @@ export default function Reports() {
         ))}
       </View>
 
-      {/* Top Gatilhos */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>🎯 Gatilhos mais frequentes</Text>
+
         {topTriggers.length > 0 ? (
           topTriggers.map((trigger, idx) => (
             <View key={trigger.id || idx} style={styles.triggerItem}>
@@ -110,9 +165,9 @@ export default function Reports() {
         )}
       </View>
 
-      {/* Estatísticas gerais - sem média */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>📈 Visão geral</Text>
+
         <View style={styles.statsGrid}>
           <View style={styles.statBox}>
             <Text style={styles.statBig}>
@@ -120,6 +175,7 @@ export default function Reports() {
             </Text>
             <Text style={styles.statLabel}>registros</Text>
           </View>
+
           <View style={styles.statBox}>
             <Text style={styles.statBig}>
               {statsOverview?.days_with_entries || 0}
@@ -127,6 +183,70 @@ export default function Reports() {
             <Text style={styles.statLabel}>dias ativos</Text>
           </View>
         </View>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>😊 Bem-estar emocional</Text>
+
+        <View style={styles.statsGrid}>
+          <View style={styles.statBox}>
+            <Text style={styles.statBig}>
+              {emotionalStats.average.toFixed(1)}
+            </Text>
+            <Text style={styles.statLabel}>humor médio</Text>
+          </View>
+
+          <View style={styles.statBox}>
+            <Text style={styles.statBig}>
+              {emotionalStats.positivePercent}%
+            </Text>
+            <Text style={styles.statLabel}>positivos</Text>
+          </View>
+        </View>
+
+        <View style={styles.statsGrid}>
+          <View style={styles.statBox}>
+            <Text style={styles.statBig}>
+              {emotionalStats.neutralPercent}%
+            </Text>
+            <Text style={styles.statLabel}>neutros</Text>
+          </View>
+
+          <View style={styles.statBox}>
+            <Text style={styles.statBig}>
+              {emotionalStats.negativePercent}%
+            </Text>
+            <Text style={styles.statLabel}>negativos</Text>
+          </View>
+        </View>
+
+        <Text style={styles.infoText}>
+          🏆 Melhor dia: {formatDate(statsOverview?.best_day?.date)}
+        </Text>
+
+        <Text style={styles.infoText}>
+          ⚠️ Dia mais difícil: {formatDate(statsOverview?.worst_day?.date)}
+        </Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>📋 Resumo do período</Text>
+
+        <Text style={styles.insightText}>💬 {mainInsight}</Text>
+
+        {topTriggerName ? (
+          <Text style={styles.insightText}>
+            🎯 O gatilho mais frequente foi {topTriggerName}.
+          </Text>
+        ) : (
+          <Text style={styles.insightText}>
+            🎯 Nenhum gatilho predominante foi identificado.
+          </Text>
+        )}
+
+        <Text style={styles.insightText}>
+          📅 Você registrou emoções em {statsOverview?.days_with_entries || 0} dias diferentes.
+        </Text>
       </View>
     </ScrollView>
   );
@@ -211,6 +331,7 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: "row",
     gap: 12,
+    marginBottom: 12,
   },
   statBox: {
     flex: 1,
@@ -228,5 +349,16 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 12,
     marginTop: 4,
+  },
+  infoText: {
+    color: "#CBD5E1",
+    fontSize: 14,
+    marginTop: 8,
+  },
+  insightText: {
+    color: "#CBD5E1",
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 10,
   },
 });

@@ -1,17 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Linking,
-  Modal,
+import {View, Text, Pressable, ScrollView, StyleSheet, Linking, Modal,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { api } from "@/services/api";
 import { fetchSubTriggers } from "@/services/suggestions";
-import { useThemeColor } from "@/hooks/use-theme-color";
 
 type Message = {
   id: string;
@@ -23,22 +15,14 @@ type Message = {
 };
 
 export default function Sugestoes() {
-  const background = useThemeColor({}, "background");
-  const text = useThemeColor({}, "text");
-  const isLight = background === "#EEF2F7";
-
   const { trigger } = useLocalSearchParams();
   const hasStarted = useRef(false);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedTriggers, setSelectedTriggers] = useState<string[]>([]);
   const [remainingTriggers, setRemainingTriggers] = useState<string[]>([]);
-  const [tempSelectedTriggers, setTempSelectedTriggers] = useState<string[]>(
-    [],
-  );
-  const [selectedSubOptionIds, setSelectedSubOptionIds] = useState<string[]>(
-    [],
-  );
+  const [tempSelectedTriggers, setTempSelectedTriggers] = useState<string[]>([]);
+  const [selectedSubOptionIds, setSelectedSubOptionIds] = useState<string[]>([]);
   const [usedTriggers, setUsedTriggers] = useState<string[]>([]);
   const [expandedSuggestions, setExpandedSuggestions] = useState<string[]>([]);
   const [showResetModal, setShowResetModal] = useState(false);
@@ -169,9 +153,7 @@ export default function Sugestoes() {
     const map = new Map();
 
     resources.forEach((resource) => {
-      const key = String(
-        resource.title || resource.url || resource.id,
-      ).toLowerCase();
+      const key = String(resource.title || resource.url || resource.id).toLowerCase();
 
       if (!map.has(key)) {
         map.set(key, resource);
@@ -199,14 +181,14 @@ export default function Sugestoes() {
 
           if (parsedTriggers.length > 1) {
             addBotMessage(
-              "Você marcou mais de um gatilho 💙 Sobre qual deles quer falar primeiro?",
+              "Você marcou mais de um gatilho 💙 Sobre qual deles quer falar primeiro?"
             );
 
             addOptions(
               parsedTriggers.map((trigger) => ({
                 id: trigger,
                 name: trigger,
-              })),
+              }))
             );
           } else {
             setUsedTriggers([parsedTriggers[0]]);
@@ -264,7 +246,7 @@ export default function Sugestoes() {
         }
 
         return msg;
-      }),
+      })
     );
   }
 
@@ -308,14 +290,12 @@ export default function Sugestoes() {
       const response = await api.get(`/sub-triggers/${item.id}`);
       const data = response.data.data || response.data;
 
-      addBotMessage(
-        "Entendi. Separei algumas sugestões que podem ajudar nesse momento 💙",
-      );
+      addBotMessage("Entendi. Separei algumas sugestões que podem ajudar nesse momento 💙");
 
       addSuggestions(data.suggestions || [], data.resources || []);
 
       const availableTriggers = remainingTriggers.filter(
-        (t) => !usedTriggers.includes(t),
+        (t) => !usedTriggers.includes(t)
       );
 
       if (availableTriggers.length > 0) {
@@ -326,7 +306,7 @@ export default function Sugestoes() {
             availableTriggers.map((trigger) => ({
               id: trigger,
               name: trigger,
-            })),
+            }))
           );
         }, 600);
       } else {
@@ -341,13 +321,10 @@ export default function Sugestoes() {
   }
 
   return (
-    <View style={[s.container, { backgroundColor: background }]}>
+    <View style={s.container}>
       {messages.length > 0 && (
         <View style={s.resetWrap}>
-          <Pressable
-            onPress={() => setShowResetModal(true)}
-            style={s.resetButton}
-          >
+          <Pressable onPress={() => setShowResetModal(true)} style={s.resetButton}>
             <Text style={s.resetText}>Recomeçar conversa</Text>
           </Pressable>
         </View>
@@ -360,25 +337,8 @@ export default function Sugestoes() {
         {messages.map((message) => {
           if (message.type === "bot") {
             return (
-              <View
-                key={message.id}
-                style={[
-                  s.bubble,
-                  s.botBubble,
-                  {
-                    backgroundColor: isLight ? "#CEE7F2" : "#0F172A",
-                    borderColor: isLight ? "#B7D4E2" : "#1F2937",
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    s.botText,
-                    { color: isLight ? "#0F172A" : "#E5E7EB" },
-                  ]}
-                >
-                  {message.text}
-                </Text>
+              <View key={message.id} style={[s.bubble, s.botBubble]}>
+                <Text style={s.botText}>{message.text}</Text>
               </View>
             );
           }
@@ -386,14 +346,7 @@ export default function Sugestoes() {
           if (message.type === "user") {
             return (
               <View key={message.id} style={[s.bubble, s.userBubble]}>
-                <Text
-                  style={[
-                    s.userText,
-                    { color: isLight ? "#0F172A" : "#E5E7EB" },
-                  ]}
-                >
-                  {message.text}
-                </Text>
+                <Text style={s.userText}>{message.text}</Text>
               </View>
             );
           }
@@ -412,27 +365,16 @@ export default function Sugestoes() {
                       <Pressable
                         key={item.id}
                         disabled={item.disabled}
-                        onPress={() => handleSelectTrigger(item)}
                         style={[
                           s.gridCard,
-                          {
-                            backgroundColor: isLight ? "#CEE7F2" : "#0F172A",
-                            borderColor: isLight ? "#B7D4E2" : "#243041",
-                          },
                           isSelected && s.gridCardSelected,
                           item.disabled && { opacity: 0.4 },
                         ]}
+                        onPress={() => handleSelectTrigger(item)}
                       >
                         <Text style={s.gridEmoji}>{getEmoji(item.name)}</Text>
 
-                        <Text
-                          style={[
-                            s.gridText,
-                            { color: isLight ? "#0F172A" : "#E5E7EB" },
-                          ]}
-                        >
-                          {item.name}
-                        </Text>
+                        <Text style={s.gridText}>{item.name}</Text>
                       </Pressable>
                     );
                   })}
@@ -449,19 +391,19 @@ export default function Sugestoes() {
                         setIsChoosingTriggers(false);
 
                         setMessages((prev) =>
-                          prev.filter((msg) => msg.type !== "options"),
+                          prev.filter((msg) => msg.type !== "options")
                         );
 
                         if (tempSelectedTriggers.length > 1) {
                           addBotMessage(
-                            "Você marcou mais de um gatilho 💙 Sobre qual deles quer falar primeiro?",
+                            "Você marcou mais de um gatilho 💙 Sobre qual deles quer falar primeiro?"
                           );
 
                           addOptions(
                             tempSelectedTriggers.map((trigger) => ({
                               id: trigger,
                               name: trigger,
-                            })),
+                            }))
                           );
                         } else {
                           setUsedTriggers([tempSelectedTriggers[0]]);
@@ -469,14 +411,7 @@ export default function Sugestoes() {
                         }
                       }}
                     >
-                      <Text
-                        style={[
-                          s.restartText,
-                          { color: isLight ? "#0F172A" : "#CCFBF1" },
-                        ]}
-                      >
-                        Continuar
-                      </Text>
+                      <Text style={s.restartText}>Continuar</Text>
                     </Pressable>
                   )}
               </View>
@@ -490,10 +425,7 @@ export default function Sugestoes() {
                   <Pressable
                     key={item.id}
                     disabled={item.disabled}
-                    style={[
-                      s.subOptionButton,
-                      item.disabled && { opacity: 0.4 },
-                    ]}
+                    style={[s.subOptionButton, item.disabled && { opacity: 0.4 }]}
                     onPress={() => handleSelectSubTrigger(item)}
                   >
                     <Text style={s.subOptionText}>{item.name}</Text>
@@ -515,8 +447,7 @@ export default function Sugestoes() {
                     const suggestionId =
                       item.id?.toString() || `${message.id}-${index}`;
 
-                    const isExpanded =
-                      expandedSuggestions.includes(suggestionId);
+                    const isExpanded = expandedSuggestions.includes(suggestionId);
 
                     return (
                       <Pressable
@@ -546,9 +477,7 @@ export default function Sugestoes() {
 
                         <Text style={s.resourceTitle}>{resource.title}</Text>
 
-                        <Pressable
-                          onPress={() => Linking.openURL(resource.url)}
-                        >
+                        <Pressable onPress={() => Linking.openURL(resource.url)}>
                           <Text style={s.resourceLink}>Abrir recurso</Text>
                         </Pressable>
                       </View>
@@ -571,36 +500,47 @@ export default function Sugestoes() {
         {!!erro && <Text style={s.error}>{erro}</Text>}
       </ScrollView>
 
-      <Modal visible={showResetModal} transparent animationType="fade">
-        <View style={s.modalOverlay}>
-          <View style={s.modalBox}>
-            <Text style={s.modalTitle}>Recomeçar conversa?</Text>
 
-            <Text style={s.modalText}>
-              Isso vai apagar a conversa atual. Deseja continuar?
-            </Text>
+        
 
-            <View style={s.modalButtons}>
-              <Pressable
-                style={s.modalCancel}
-                onPress={() => setShowResetModal(false)}
-              >
-                <Text style={s.modalCancelText}>Cancelar</Text>
-              </Pressable>
 
-              <Pressable
-                style={s.modalConfirm}
-                onPress={() => {
-                  setShowResetModal(false);
-                  resetConversation();
-                }}
-              >
-                <Text style={s.modalConfirmText}>Recomeçar</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+
+
+        <Modal visible={showResetModal} transparent animationType="fade">
+  <View style={s.modalOverlay}>
+    <View style={s.modalBox}>
+      <Text style={s.modalTitle}>Recomeçar conversa?</Text>
+
+      <Text style={s.modalText}>
+        Isso vai apagar a conversa atual. Deseja continuar?
+      </Text>
+
+      <View style={s.modalButtons}>
+        <Pressable
+          style={s.modalCancel}
+          onPress={() => setShowResetModal(false)}
+        >
+          <Text style={s.modalCancelText}>Cancelar</Text>
+        </Pressable>
+
+        <Pressable
+          style={s.modalConfirm}
+          onPress={() => {
+            setShowResetModal(false);
+            resetConversation();
+          }}
+        >
+          <Text style={s.modalConfirmText}>Recomeçar</Text>
+        </Pressable>
+      </View>
+    </View>
+  </View>
+</Modal>
+
+
+
+
+
     </View>
   );
 }
@@ -820,66 +760,70 @@ const s = StyleSheet.create({
     textAlign: "center",
   },
 
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.65)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
-  },
 
-  modalBox: {
-    width: "100%",
-    backgroundColor: "#0F172A",
-    borderRadius: 22,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: "#243041",
-  },
+modalOverlay: {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.65)",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: 24,
+},
 
-  modalTitle: {
-    color: "#E5E7EB",
-    fontSize: 20,
-    fontWeight: "800",
-    marginBottom: 10,
-  },
+modalBox: {
+  width: "100%",
+  backgroundColor: "#0F172A",
+  borderRadius: 22,
+  padding: 22,
+  borderWidth: 1,
+  borderColor: "#243041",
+},
 
-  modalText: {
-    color: "#CBD5E1",
-    fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 22,
-  },
+modalTitle: {
+  color: "#E5E7EB",
+  fontSize: 20,
+  fontWeight: "800",
+  marginBottom: 10,
+},
 
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 12,
-  },
+modalText: {
+  color: "#CBD5E1",
+  fontSize: 15,
+  lineHeight: 22,
+  marginBottom: 22,
+},
 
-  modalCancel: {
-    backgroundColor: "#111827",
-    borderWidth: 1,
-    borderColor: "#243041",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-  },
+modalButtons: {
+  flexDirection: "row",
+  justifyContent: "flex-end",
+  gap: 12,
+},
 
-  modalCancelText: {
-    color: "#CBD5E1",
-    fontWeight: "700",
-  },
+modalCancel: {
+  backgroundColor: "#111827",
+  borderWidth: 1,
+  borderColor: "#243041",
+  paddingVertical: 12,
+  paddingHorizontal: 16,
+  borderRadius: 14,
+},
 
-  modalConfirm: {
-    backgroundColor: "#2dd4bf",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-  },
+modalCancelText: {
+  color: "#CBD5E1",
+  fontWeight: "700",
+},
 
-  modalConfirmText: {
-    color: "#08111F",
-    fontWeight: "900",
-  },
+modalConfirm: {
+  backgroundColor: "#2dd4bf",
+  paddingVertical: 12,
+  paddingHorizontal: 16,
+  borderRadius: 14,
+},
+
+modalConfirmText: {
+  color: "#08111F",
+  fontWeight: "900",
+},
+
+
+
 });
