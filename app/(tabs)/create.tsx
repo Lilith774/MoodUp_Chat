@@ -423,12 +423,11 @@ export default function CreateMood() {
               )}
 
               <Text style={[s.label, { color: textSecondary }]}>
-                Observação (opcional)
+                Conte mais sobre como foi seu dia...
               </Text>
               <TextInput
                 value={note}
                 onChangeText={setNote}
-                placeholder="O que aconteceu hoje?"
                 placeholderTextColor="#6B7280"
                 style={[
                   s.input,
