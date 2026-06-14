@@ -8,7 +8,6 @@ export default function Preferencias() {
 
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
-      {" "}
       <Text style={[styles.title, { color: text }]}>Preferências</Text>
       <Text
         style={[

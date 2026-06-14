@@ -33,6 +33,8 @@ export default function Dashboard() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedMood, setSelectedMood] = useState<any>(null);
   const [historySearch, setHistorySearch] = useState("");
+  const [expiredModalVisible, setExpiredModalVisible] = useState(false);
+  const [expiredMessage, setExpiredMessage] = useState("");
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [moodToDelete, setMoodToDelete] = useState<any>(null);
 
@@ -50,6 +52,16 @@ export default function Dashboard() {
     const [year, month, day] = onlyDate.split("-");
     return `${day}/${month}/${year}`;
   };
+  
+  const canEditOrDelete = (moodDate: string) => {
+  const createdAt = new Date(moodDate);
+  const now = new Date();
+
+  const diffHours =
+    (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+
+  return diffHours <= 24;
+};
 
   async function loadData() {
     try {
@@ -67,10 +79,14 @@ export default function Dashboard() {
       }
 
       setHistory(historyData);
+
+      console.log("Primeiro Registro:", historyData[0]);
+
     } catch (error: any) {
       console.log("❌ ERRO DASH:", error?.response?.data || error.message);
       Alert.alert("Erro", "Não foi possível carregar os dados");
     }
+
   }
 
   const checkAdminStatus = async () => {
@@ -418,25 +434,69 @@ export default function Dashboard() {
                     <Text style={styles.intensityText}>
                       ⭐ Intensidade: {item.level}/5
                     </Text>
+
+                    <Text
+  style={{
+    color: !canEditOrDelete(item.created_at)
+      ? "#ef4444"
+      : "#2dd4bf",
+    marginTop: 6,
+    fontWeight: "600",
+    fontSize: 12,
+  }}
+>
+  {!canEditOrDelete(item.created_at)
+    ? "🔒 Período de edição encerrado"
+    : "⏳ Editável por 24 horas"}
+</Text>
                   </View>
-
-                  <View style={styles.actionButtons}>
+<View style={styles.actionButtons}>
                     <TouchableOpacity
-                      style={styles.editButton}
-                      onPress={() => {
-                        setShowHistory(false);
-                        handleEdit(item);
-                      }}
-                    >
-                      <Text style={styles.actionText}>✏️</Text>
-                    </TouchableOpacity>
+  style={[
+    styles.editButton,
+    !canEditOrDelete(item.created_at) && {
+      opacity: 0.4,
+    },
+  ]}
+  onPress={() => {
+    if (!canEditOrDelete(item.created_at || item.date)) {
+      setExpiredMessage(
+  "Este registro só pode ser editado nas primeiras 24 horas após sua criação."
+);
+
+setExpiredModalVisible(true);
+      return;
+    }
+
+    setShowHistory(false);
+    handleEdit(item);
+  }}
+>
+  <Text style={styles.actionText}>✏️</Text>
+</TouchableOpacity>
 
                     <TouchableOpacity
-                      style={styles.deleteButton}
-                      onPress={() => openDeleteModal(item)}
-                    >
-                      <Text style={styles.actionText}>🗑️</Text>
-                    </TouchableOpacity>
+  style={[
+    styles.deleteButton,
+    !canEditOrDelete(item.created_at) && {
+      opacity: 0.4,
+    },
+  ]}
+  onPress={() => {
+    if (!canEditOrDelete(item.created_at || item.date)) {
+      setExpiredMessage(
+  "Este registro só pode ser excluído nas primeiras 24 horas após sua criação."
+);
+
+setExpiredModalVisible(true);
+      return;
+    }
+
+    openDeleteModal(item);
+  }}
+>
+  <Text style={styles.actionText}>🗑️</Text>
+</TouchableOpacity>
                   </View>
                 </View>
               ))
@@ -480,6 +540,33 @@ export default function Dashboard() {
           </View>
         </View>
       </Modal>
+
+      <Modal
+  visible={expiredModalVisible}
+  transparent
+  animationType="fade"
+>
+  <View style={styles.overlay}>
+    <View style={styles.confirmBox}>
+      <Text style={styles.confirmTitle}>
+        🔒 Prazo expirado
+      </Text>
+
+      <Text style={styles.confirmText}>
+        {expiredMessage}
+      </Text>
+
+      <TouchableOpacity
+        style={styles.expiredButton}
+        onPress={() => setExpiredModalVisible(false)}
+      >
+        <Text style={styles.expiredButtonText}>
+       Entendi
+        </Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
 
       <EditMoodModal
         visible={editModalVisible}
@@ -765,4 +852,18 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "800",
   },
+
+  expiredButton: {
+  marginTop: 16,
+  padding: 14,
+  borderRadius: 14,
+  backgroundColor: "#2dd4bf",
+  alignItems: "center",
+},
+
+expiredButtonText: {
+  color: "#02120F",
+  fontWeight: "800",
+},
+
 });
