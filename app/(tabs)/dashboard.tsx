@@ -52,16 +52,15 @@ export default function Dashboard() {
     const [year, month, day] = onlyDate.split("-");
     return `${day}/${month}/${year}`;
   };
-  
+
   const canEditOrDelete = (moodDate: string) => {
-  const createdAt = new Date(moodDate);
-  const now = new Date();
+    const createdAt = new Date(moodDate);
+    const now = new Date();
 
-  const diffHours =
-    (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+    const diffHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
 
-  return diffHours <= 24;
-};
+    return diffHours <= 24;
+  };
 
   async function loadData() {
     try {
@@ -81,12 +80,10 @@ export default function Dashboard() {
       setHistory(historyData);
 
       console.log("Primeiro Registro:", historyData[0]);
-
     } catch (error: any) {
       console.log("❌ ERRO DASH:", error?.response?.data || error.message);
       Alert.alert("Erro", "Não foi possível carregar os dados");
     }
-
   }
 
   const checkAdminStatus = async () => {
@@ -286,14 +283,32 @@ export default function Dashboard() {
 
       <View style={styles.row}>
         <Animated.View entering={FadeInUp}>
-          <View style={styles.metricCard}>
+          <View
+            style={[
+              styles.metricCard,
+              isLight && {
+                backgroundColor: "#D4E0E6",
+                borderWidth: 1,
+                borderColor: "#B8CAD3",
+              },
+            ]}
+          >
             <Text style={styles.metricValue}>{filteredHistory.length}</Text>
             <Text style={styles.metricLabel}>Registros</Text>
           </View>
         </Animated.View>
 
         <Animated.View entering={FadeInUp.delay(100)}>
-          <View style={styles.metricCard}>
+          <View
+            style={[
+              styles.metricCard,
+              isLight && {
+                backgroundColor: "#D4E0E6",
+                borderWidth: 1,
+                borderColor: "#B8CAD3",
+              },
+            ]}
+          >
             <Text style={styles.metricValue}>{streak}</Text>
             <Text style={styles.metricLabel}>Streak 🔥</Text>
           </View>
@@ -305,9 +320,18 @@ export default function Dashboard() {
       </Text>
 
       <Animated.View entering={FadeInUp.delay(200)}>
-        <View style={styles.card}>
+        <View
+          style={[
+            styles.card,
+            isLight && {
+              backgroundColor: "#D4E0E6",
+              borderWidth: 1,
+              borderColor: "#B8CAD3",
+            },
+          ]}
+        >
+          {" "}
           <Text style={styles.cardTitle}>Resumo emocional</Text>
-
           <LineChart
             data={lineData}
             width={Math.min(width - 56, 700)}
@@ -331,7 +355,6 @@ export default function Dashboard() {
             }}
             style={{ borderRadius: 12, alignSelf: "center" }}
           />
-
           <View style={{ marginTop: 12 }}>
             <Text style={[styles.text, isLight && { color: "#64748B" }]}>
               😊 Bons: {moodStats.good}
@@ -347,7 +370,16 @@ export default function Dashboard() {
       </Animated.View>
 
       <Animated.View entering={FadeInUp.delay(300)}>
-        <View style={styles.card}>
+        <View
+          style={[
+            styles.card,
+            isLight && {
+              backgroundColor: "#D4E0E6",
+              borderWidth: 1,
+              borderColor: "#B8CAD3",
+            },
+          ]}
+        >
           <Text style={styles.cardTitle}>Seu mês</Text>
           <MoodCalendar data={filteredHistory} />
         </View>
@@ -382,10 +414,12 @@ export default function Dashboard() {
         <View
           style={[
             styles.modalContainer,
-            isLight && { backgroundColor: "#122560" },
+            isLight && { backgroundColor: "#C7D7DF" },
           ]}
         >
-          <Text style={styles.title}>Histórico emocional</Text>
+          <Text style={[styles.title, isLight && { color: "#334155" }]}>
+            Histórico emocional
+          </Text>
 
           <TextInput
             style={styles.searchInput}
@@ -398,24 +432,37 @@ export default function Dashboard() {
           <ScrollView>
             {searchedHistory.length > 0 ? (
               searchedHistory.map((item, index) => (
-                <View key={item.id || index} style={styles.historyItem}>
+                <View
+                  key={item.id || index}
+                  style={[
+                    styles.historyItem,
+                    isLight && {
+                      backgroundColor: "#D4E0E6",
+                      borderWidth: 1,
+                      borderColor: "#B8CAD3",
+                    },
+                  ]}
+                >
                   <View style={styles.historyContent}>
-                    <Text style={styles.historyTitle}>
+                    <Text
+                      style={[
+                        styles.historyTitle,
+                        isLight && { color: "#334155" },
+                      ]}
+                    >
                       📌 {item.title || "Registro emocional"}
                     </Text>
 
-                    <Text style={styles.levelText}>
-                      {getMoodLabel(item.level)}
+                    <Text
+                      style={[styles.text, isLight && { color: "#64748B" }]}
+                    >
+                      📅 {formatDate(item.date)}
                     </Text>
-
-                    <Text style={styles.text}>📅 {formatDate(item.date)}</Text>
 
                     {item.triggers && item.triggers.length > 0 ? (
                       <Text style={styles.triggerText}>
                         🎯 Gatilhos:{" "}
-                        {item.triggers
-                          .map((t: any) => t.name || t)
-                          .join(", ")}
+                        {item.triggers.map((t: any) => t.name || t).join(", ")}
                       </Text>
                     ) : (
                       <Text style={styles.emptyInfoText}>
@@ -424,79 +471,91 @@ export default function Dashboard() {
                     )}
 
                     {item.note ? (
-                      <Text style={styles.noteText}>📝 {item.note}</Text>
+                      <Text
+                        style={[
+                          styles.noteText,
+                          isLight && { color: "#64748B" },
+                        ]}
+                      >
+                        📝 {item.note}
+                      </Text>
                     ) : (
                       <Text style={styles.emptyInfoText}>
                         📝 Sem observação
                       </Text>
                     )}
 
-                    <Text style={styles.intensityText}>
+                    <Text
+                      style={[
+                        styles.intensityText,
+                        isLight && { color: "#64748B" },
+                      ]}
+                    >
                       ⭐ Intensidade: {item.level}/5
                     </Text>
 
                     <Text
-  style={{
-    color: !canEditOrDelete(item.created_at)
-      ? "#ef4444"
-      : "#2dd4bf",
-    marginTop: 6,
-    fontWeight: "600",
-    fontSize: 12,
-  }}
->
-  {!canEditOrDelete(item.created_at)
-    ? "🔒 Período de edição encerrado"
-    : "⏳ Editável por 24 horas"}
-</Text>
+                      style={{
+                        color: !canEditOrDelete(item.created_at)
+                          ? "#ef4444"
+                          : "#2dd4bf",
+                        marginTop: 6,
+                        fontWeight: "600",
+                        fontSize: 12,
+                      }}
+                    >
+                      {!canEditOrDelete(item.created_at)
+                        ? "🔒 Período de edição encerrado"
+                        : "⏳ Editável por 24 horas"}
+                    </Text>
                   </View>
-<View style={styles.actionButtons}>
+                  <View style={styles.actionButtons}>
                     <TouchableOpacity
-  style={[
-    styles.editButton,
-    !canEditOrDelete(item.created_at) && {
-      opacity: 0.4,
-    },
-  ]}
-  onPress={() => {
-    if (!canEditOrDelete(item.created_at || item.date)) {
-      setExpiredMessage(
-  "Este registro só pode ser editado nas primeiras 24 horas após sua criação."
-);
+                      style={[
+                        styles.editButton,
+                        !canEditOrDelete(item.created_at) && {
+                          opacity: 0.4,
+                        },
+                      ]}
+                      onPress={() => {
+                        if (!canEditOrDelete(item.created_at || item.date)) {
+                          setExpiredMessage(
+                            "Este registro só pode ser editado nas primeiras 24 horas após sua criação.",
+                          );
 
-setExpiredModalVisible(true);
-      return;
-    }
+                          setExpiredModalVisible(true);
+                          return;
+                        }
 
-    setShowHistory(false);
-    handleEdit(item);
-  }}
->
-  <Text style={styles.actionText}>✏️</Text>
-</TouchableOpacity>
+                        setShowHistory(false);
+                        handleEdit(item);
+                      }}
+                    >
+                      <Text style={styles.actionText}>✏️</Text>
+                    </TouchableOpacity>
 
                     <TouchableOpacity
-  style={[
-    styles.deleteButton,
-    !canEditOrDelete(item.created_at) && {
-      opacity: 0.4,
-    },
-  ]}
-  onPress={() => {
-    if (!canEditOrDelete(item.created_at || item.date)) {
-      setExpiredMessage(
-  "Este registro só pode ser excluído nas primeiras 24 horas após sua criação."
-);
+                      style={[
+                        styles.deleteButton,
+                        !canEditOrDelete(item.created_at) && {
+                          opacity: 0.4,
+                        },
+                      ]}
+                      onPress={() => {
+                        if (!canEditOrDelete(item.created_at || item.date)) {
+                          setExpiredMessage(
+                            "Este registro só pode ser excluído nas primeiras 24 horas após sua criação.",
+                          );
 
-setExpiredModalVisible(true);
-      return;
-    }
+                          setExpiredModalVisible(true);
+                          return;
+                        }
 
-    openDeleteModal(item);
-  }}
->
-  <Text style={styles.actionText}>🗑️</Text>
-</TouchableOpacity>
+                        openDeleteModal(item);
+                      }}
+                    >
+                      <Text style={styles.actionText}>🗑️</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
               ))
@@ -526,7 +585,10 @@ setExpiredModalVisible(true);
             </Text>
 
             <View style={styles.confirmButtons}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={closeDeleteModal}>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={closeDeleteModal}
+              >
                 <Text style={styles.cancelText}>Cancelar</Text>
               </TouchableOpacity>
 
@@ -541,32 +603,22 @@ setExpiredModalVisible(true);
         </View>
       </Modal>
 
-      <Modal
-  visible={expiredModalVisible}
-  transparent
-  animationType="fade"
->
-  <View style={styles.overlay}>
-    <View style={styles.confirmBox}>
-      <Text style={styles.confirmTitle}>
-        🔒 Prazo expirado
-      </Text>
+      <Modal visible={expiredModalVisible} transparent animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.confirmBox}>
+            <Text style={styles.confirmTitle}>🔒 Prazo expirado</Text>
 
-      <Text style={styles.confirmText}>
-        {expiredMessage}
-      </Text>
+            <Text style={styles.confirmText}>{expiredMessage}</Text>
 
-      <TouchableOpacity
-        style={styles.expiredButton}
-        onPress={() => setExpiredModalVisible(false)}
-      >
-        <Text style={styles.expiredButtonText}>
-       Entendi
-        </Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+            <TouchableOpacity
+              style={styles.expiredButton}
+              onPress={() => setExpiredModalVisible(false)}
+            >
+              <Text style={styles.expiredButtonText}>Entendi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <EditMoodModal
         visible={editModalVisible}
@@ -854,16 +906,15 @@ const styles = StyleSheet.create({
   },
 
   expiredButton: {
-  marginTop: 16,
-  padding: 14,
-  borderRadius: 14,
-  backgroundColor: "#2dd4bf",
-  alignItems: "center",
-},
+    marginTop: 16,
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: "#2dd4bf",
+    alignItems: "center",
+  },
 
-expiredButtonText: {
-  color: "#02120F",
-  fontWeight: "800",
-},
-
+  expiredButtonText: {
+    color: "#02120F",
+    fontWeight: "800",
+  },
 });
