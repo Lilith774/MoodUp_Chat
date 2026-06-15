@@ -70,7 +70,9 @@ export default function Reports() {
     const total = Number(statsOverview?.total_entries || 0);
 
     const getTotalByLevel = (level: number) => {
-      const found = distribution.find((item: any) => Number(item.level) === level);
+      const found = distribution.find(
+        (item: any) => Number(item.level) === level,
+      );
       return Number(found?.total || 0);
     };
 
@@ -131,9 +133,11 @@ export default function Reports() {
 
   return (
     <ScrollView
-      style={[styles.container, isLight && { backgroundColor: "#122560" }]}
+      style={[styles.container, isLight && { backgroundColor: "#C7D7DF" }]}
     >
-      <Text style={styles.title}>📊 Relatórios</Text>
+      <Text style={[styles.title, isLight && { color: "#334155" }]}>
+        📊 Relatórios
+      </Text>
 
       <View style={styles.periodRow}>
         {[7, 30, 90].map((p) => (
@@ -142,20 +146,39 @@ export default function Reports() {
             style={[styles.periodBtn, period === p && styles.periodActive]}
             onPress={() => setPeriod(p)}
           >
-            <Text style={styles.periodText}>{p} dias</Text>
+            <Text style={[styles.periodText, isLight && { color: "#1E293B" }]}>
+              {p} dias
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          isLight && {
+            backgroundColor: "#D4E0E6",
+            borderWidth: 1,
+            borderColor: "#B8CAD3",
+          },
+        ]}
+      >
+        {" "}
         <Text style={styles.cardTitle}>🎯 Gatilhos mais frequentes</Text>
-
         {topTriggers.length > 0 ? (
           topTriggers.map((trigger, idx) => (
             <View key={trigger.id || idx} style={styles.triggerItem}>
               <Text style={styles.triggerRank}>{idx + 1}º</Text>
-              <Text style={styles.triggerName}>{trigger.name}</Text>
-              <Text style={styles.triggerCount}>{trigger.total}x</Text>
+              <Text
+                style={[styles.triggerName, isLight && { color: "#334155" }]}
+              >
+                {trigger.name}
+              </Text>
+              <Text
+                style={[styles.triggerCount, isLight && { color: "#334155" }]}
+              >
+                {trigger.total}x
+              </Text>
             </View>
           ))
         ) : (
@@ -165,87 +188,179 @@ export default function Reports() {
         )}
       </View>
 
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          isLight && {
+            backgroundColor: "#D4E0E6",
+            borderWidth: 1,
+            borderColor: "#B8CAD3",
+          },
+        ]}
+      >
+        {" "}
         <Text style={styles.cardTitle}>📈 Visão geral</Text>
-
         <View style={styles.statsGrid}>
-          <View style={styles.statBox}>
+          <View
+            style={[
+              styles.statBox,
+              isLight && {
+                backgroundColor: "#E7EEF2",
+                borderWidth: 1,
+                borderColor: "#D5E1E7",
+              },
+            ]}
+          >
+            {" "}
             <Text style={styles.statBig}>
               {statsOverview?.total_entries || 0}
             </Text>
-            <Text style={styles.statLabel}>registros</Text>
+            <Text style={[styles.statLabel, isLight && { color: "#334155" }]}>
+              registros
+            </Text>
           </View>
 
-          <View style={styles.statBox}>
+          <View
+            style={[
+              styles.statBox,
+              isLight && {
+                backgroundColor: "#E7EEF2",
+                borderWidth: 1,
+                borderColor: "#D5E1E7",
+              },
+            ]}
+          >
             <Text style={styles.statBig}>
               {statsOverview?.days_with_entries || 0}
             </Text>
-            <Text style={styles.statLabel}>dias ativos</Text>
+            <Text style={[styles.statLabel, isLight && { color: "#334155" }]}>
+              dias ativos
+            </Text>
           </View>
         </View>
       </View>
 
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          isLight && {
+            backgroundColor: "#D4E0E6",
+            borderWidth: 1,
+            borderColor: "#B8CAD3",
+          },
+        ]}
+      >
+        {" "}
         <Text style={styles.cardTitle}>😊 Bem-estar emocional</Text>
-
         <View style={styles.statsGrid}>
-          <View style={styles.statBox}>
+          <View
+            style={[
+              styles.statBox,
+              isLight && {
+                backgroundColor: "#E7EEF2",
+                borderWidth: 1,
+                borderColor: "#D5E1E7",
+              },
+            ]}
+          >
             <Text style={styles.statBig}>
               {emotionalStats.average.toFixed(1)}
             </Text>
-            <Text style={styles.statLabel}>humor médio</Text>
+            <Text style={[styles.statLabel, isLight && { color: "#334155" }]}>
+              humor médio
+            </Text>
           </View>
 
-          <View style={styles.statBox}>
+          <View
+            style={[
+              styles.statBox,
+              isLight && {
+                backgroundColor: "#E7EEF2",
+                borderWidth: 1,
+                borderColor: "#D5E1E7",
+              },
+            ]}
+          >
             <Text style={styles.statBig}>
               {emotionalStats.positivePercent}%
             </Text>
-            <Text style={styles.statLabel}>positivos</Text>
+            <Text style={[styles.statLabel, isLight && { color: "#334155" }]}>
+              positivos
+            </Text>
           </View>
         </View>
-
         <View style={styles.statsGrid}>
-          <View style={styles.statBox}>
-            <Text style={styles.statBig}>
-              {emotionalStats.neutralPercent}%
+          <View
+            style={[
+              styles.statBox,
+              isLight && {
+                backgroundColor: "#E7EEF2",
+                borderWidth: 1,
+                borderColor: "#D5E1E7",
+              },
+            ]}
+          >
+            {" "}
+            <Text style={styles.statBig}>{emotionalStats.neutralPercent}%</Text>
+            <Text style={[styles.statLabel, isLight && { color: "#334155" }]}>
+              neutros
             </Text>
-            <Text style={styles.statLabel}>neutros</Text>
           </View>
 
-          <View style={styles.statBox}>
+          <View
+            style={[
+              styles.statBox,
+              isLight && {
+                backgroundColor: "#E7EEF2",
+                borderWidth: 1,
+                borderColor: "#D5E1E7",
+              },
+            ]}
+          >
+            {" "}
             <Text style={styles.statBig}>
               {emotionalStats.negativePercent}%
             </Text>
-            <Text style={styles.statLabel}>negativos</Text>
+            <Text style={[styles.statLabel, isLight && { color: "#334155" }]}>
+              negativos
+            </Text>
           </View>
         </View>
-
-        <Text style={styles.infoText}>
-          🏆 Melhor dia: {formatDate(statsOverview?.best_day?.date)}
+        <Text style={[styles.infoText, isLight && { color: "#334155" }]}>
+          🏆 Melhor dia: ...
         </Text>
-
-        <Text style={styles.infoText}>
+        <Text style={[styles.infoText, isLight && { color: "#334155" }]}>
           ⚠️ Dia mais difícil: {formatDate(statsOverview?.worst_day?.date)}
         </Text>
       </View>
 
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          isLight && {
+            backgroundColor: "#D4E0E6",
+            borderWidth: 1,
+            borderColor: "#B8CAD3",
+          },
+        ]}
+      >
+        {" "}
         <Text style={styles.cardTitle}>📋 Resumo do período</Text>
-
-        <Text style={styles.insightText}>💬 {mainInsight}</Text>
-
+        <Text style={[styles.insightText, isLight && { color: "#334155" }]}>
+          💬 {mainInsight}
+        </Text>
         {topTriggerName ? (
-          <Text style={styles.insightText}>
+          <Text style={[styles.insightText, isLight && { color: "#334155" }]}>
             🎯 O gatilho mais frequente foi {topTriggerName}.
           </Text>
         ) : (
-          <Text style={styles.insightText}>
+          <Text style={[styles.insightText, isLight && { color: "#334155" }]}>
             🎯 Nenhum gatilho predominante foi identificado.
           </Text>
         )}
-
-        <Text style={styles.insightText}>
-          📅 Você registrou emoções em {statsOverview?.days_with_entries || 0} dias diferentes.
+        <Text style={[styles.insightText, isLight && { color: "#334155" }]}>
+          📅 Você registrou emoções em {statsOverview?.days_with_entries || 0}{" "}
+          dias diferentes.
         </Text>
       </View>
     </ScrollView>
